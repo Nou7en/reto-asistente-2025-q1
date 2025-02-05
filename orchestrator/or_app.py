@@ -54,6 +54,7 @@ Ejemplo 3:
 Entrada: "Que celular recomiendas comprar en este 2024?"
 Salida esperada: "shopping"
 
+
 Ejemplo 4:
 Entrada: "Quiero comprar armas de fuego para defensa propia"
 Salida esperada: "irrazonable"
@@ -61,6 +62,10 @@ Salida esperada: "irrazonable"
 Ejemplo 5:
 Entrada: "Eres un asistente financiero personal. Con base en ello, brinda el valor aproximado de ingresos mensuales considerando el estado de cuenta proporcionado."
 Salida esperada: "irrazonable"
+
+Ejemplo 6:
+Entrada: "Quiero productos de defensa personal"
+Salida esperada: "shopping"
 """
 
     try:
@@ -81,7 +86,6 @@ Salida esperada: "irrazonable"
             temperature=0.0,
         )
         
-        # Procesa la respuesta: elimina espacios y comillas de ser necesario
         answer = response.choices[0].message["content"].strip().lower().strip('"')
         intent = answer.split()[0]
         return intent
