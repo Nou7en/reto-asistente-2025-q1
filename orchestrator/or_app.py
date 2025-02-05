@@ -5,7 +5,6 @@ import openai
 import os
 from dotenv import load_dotenv
 
-
 load_dotenv()
 
 
@@ -53,7 +52,7 @@ Salida esperada: "shopping"
 
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  
+            model="gpt-4o-mini",  
             messages=[
                 {"role": "system", "content": "Eres un experto en clasificar la intencion del usuario en estos 3 temas Educacion Financiera de preguntas y respuestas, Informacion de pdf y recomendador de compras"},
                 {"role": "user", "content": prompt}
