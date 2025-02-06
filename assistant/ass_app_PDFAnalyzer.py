@@ -112,7 +112,7 @@ def analyze_pdf():
     try:
         # Usar el endpoint de chat completions para generar la respuesta
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # Se puede ajustar el modelo según necesidad
+            model="gpt-4o-mini",  # Se puede ajustar el modelo según necesidad
             messages=[
                 {"role": "system", "content": "Eres un experto en análisis de gastos y educación financiera."},
                 {"role": "user", "content": prompt}
