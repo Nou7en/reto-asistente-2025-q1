@@ -43,7 +43,9 @@ def analyze_pdf():
     try:
         with pdfplumber.open(pdf_file) as pdf:
             for page in pdf.pages:
-                text += page.extract_text() + "\n"
+                extracted_text = page.extract_text()
+                if extracted_text:
+                    text += extracted_text + "\n"
     except Exception as e:
         return jsonify({"error": f"Error al leer el PDF: {e}"}), 500
     
@@ -87,8 +89,8 @@ def analyze_pdf():
     ]
     top3_recurrentes = sorted(recurrent_expenses, key=lambda x: x["total"], reverse=True)[:3]
     
-    # Construir un resumen en texto del análisis
-    summary_text = "Análisis del estado de cuenta:\n\n"
+    # Construir un resumen en texto del análisis (para el LLM, no se envía en la respuesta)
+    summary_text = "Datos extraídos del estado de cuenta:\n\n"
     summary_text += "Top 5 de mayores gastos:\n"
     for i, txn in enumerate(top5, start=1):
         summary_text += f"{i}. {txn['establishment']}: ${txn['amount']:.2f}\n"
@@ -96,18 +98,18 @@ def analyze_pdf():
     for i, rec in enumerate(top3_recurrentes, start=1):
         summary_text += f"{i}. {rec['establishment']}: Total ${rec['total']:.2f} en {rec['count']} transacciones\n"
 
-    # Construir el prompt para el modelo
+    # Construir el prompt para el modelo (pero sin incluir en la respuesta final)
     prompt = (
-        summary_text + "\n" +
-        "Usa únicamente la información anterior para responder la siguiente pregunta:\n" +
-        f"{question}\n"
+        "Basándote en los siguientes datos de gastos, responde la pregunta del usuario:\n\n"
+        f"{summary_text}\n"
+        f"Pregunta del usuario: {question}"
     )
 
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4o-mini", 
             messages=[
-                {"role": "system", "content": "Eres un experto en análisis de gastos y educación financiera."},
+                {"role": "system", "content": "Eres un experto en análisis de gastos y educación financiera. Usa solo los datos proporcionados para responder."},
                 {"role": "user", "content": prompt}
             ],
             max_tokens=300,
@@ -115,8 +117,7 @@ def analyze_pdf():
         )
         answer = response.choices[0].message["content"].strip()
         return jsonify({
-            "analysis": summary_text,
-            "respuesta": answer
+            "respuesta": answer  # Solo devuelve la respuesta del LLM
         }), 200
     except Exception as e:
         return jsonify({"error": f"Error al generar respuesta: {str(e)}"}), 500
